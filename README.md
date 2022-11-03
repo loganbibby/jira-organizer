@@ -66,5 +66,7 @@ Dictionary of display flags where the key is an option from below and the value 
  * Expanded view modal
 
 ## Release History
+ 
+ * `0.3` - Added ability to hide issues; fixed issue with `Data` object
  * `0.2` - Added export view and ability to move issue to top/bottom
  * `0.1` - Initial release

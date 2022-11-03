@@ -14,17 +14,22 @@ def get_issues():
     columns = {
         "main": [],
         "other": [],
+        "hidden": [],
     }
 
     sorted_ids = []
 
-    # Move issues into other column
+    # Move issues into other columns
     for issue in issues:
-        if slugify(issue.status) not in g.conf.other_statuses:
+        if issue.jira_id in g.data.issues_hidden:
+            columns["hidden"].append(issue)
+            sorted_ids.append(issue.jira_id)
             continue
 
-        columns["other"].append(issue)
-        sorted_ids.append(issue.jira_id)
+        if slugify(issue.status) in g.conf.other_statuses:
+            columns["other"].append(issue)
+            sorted_ids.append(issue.jira_id)
+            continue
 
     # Sort issues
     for issue_id in g.data.issues_sorted:
@@ -84,6 +89,18 @@ def update_order():
         "success": True,
         "issues": g.data.issues_sorted
     })
+
+
+@app.route("/api/hide/<issue_id>", methods=["POST"])
+def hide_issue(issue_id):
+    if issue_id in g.data.issues_hidden:
+        g.data.issues_hidden.remove(issue_id)
+        g.data.dump()
+        return jsonify({"hidden": False})
+
+    g.data.issues_hidden.append(issue_id)
+    g.data.dump()
+    return jsonify({"hidden": True})
 
 
 @app.route("/api/statuses")
