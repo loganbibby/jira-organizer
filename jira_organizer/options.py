@@ -21,10 +21,12 @@ class Config(object):
 
 
 class Data(object):
-    issues_sorted = []
-
     def __init__(self, filename):
         self.filename = filename
+
+        self.issues_sorted = []
+        self.issues_hidden = []
+
         self.load()
 
     def load(self):
@@ -34,6 +36,7 @@ class Data(object):
 
     def dump(self):
         payload = self.__dict__.copy()
+        print(payload)
         del payload["filename"]
 
         with open(self.filename, "w+", encoding="utf-8") as fh:
