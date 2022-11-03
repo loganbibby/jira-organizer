@@ -1,0 +1,21 @@
+{% extends '_framework.html' %}
+
+{% block content %}
+    <div class="col-12 col-lg-8">
+      <ul>
+          {% for issue in issues %}
+          <li>
+              <a href="https://{{ jira_subdomain }}.atlassian.net/browse/{{ issue.id }}" target="_blank">{{ issue.id }}</a> - {{ issue.summary }}
+          </li>
+          {% endfor %}
+      </ul>
+    </div><!-- .col -->
+    <div class="col-12 col-lg-4">
+        <form>
+            <div class="input-group mb-3">
+                <input type="number" class="form-control" placeholder="Issues to export" name="limit">
+                <button class="btn btn-outline-secondary" type="submit">Update</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

@@ -3,8 +3,7 @@ from .app import app
 from .utils import *
 
 
-@app.route("/")
-def index():
+def get_issues():
     jql = ""
 
     if hasattr(g.conf, "issue_jql"):
@@ -47,15 +46,34 @@ def index():
 
         columns["main"].append(issue)
 
+    return columns
+
+
+@app.route("/")
+def index():
+    columns = get_issues()
+
     return render_template(
         "organizer.html",
-        issue_count=len(issues),
+        issue_count=len(columns["main"]) + len(columns["other"]),
         columns=columns,
         jira_subdomain=g.conf.jira_subdomain,
         statuses=get_statuses(),
         issue_display=g.conf.issue_display
     )
 
+
+@app.route("/export")
+def export_issues():
+    issues = get_issues()["main"]
+    limit = int(request.args.get("limit", 5))
+
+    return render_template(
+        "export.html",
+        issue_count=limit,
+        issues=issues[0:limit],
+        jira_subdomain=g.conf.jira_subdomain,
+    )
 
 @app.route("/api/update_order", methods=["POST"])
 def update_order():
