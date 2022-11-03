@@ -112,6 +112,8 @@
                 issues.push($(this).attr("data-id"));
             });
 
+            showSavingIndicator();
+
             $.ajax({
                 url: "/api/update_order",
                 method: "POST",
@@ -123,6 +125,7 @@
                 },
                 success: function(data) {
                     console.log(data);
+                    hideSavingIndicator();
                 }
             });
         }
@@ -156,7 +159,8 @@
         });
 
         $(".hide").click(function(){
-            let issue = $(this).closest(".issue-container")
+            let issue = $(this).closest(".issue-container");
+            showSavingIndicator();
             $.ajax({
                 url: "/api/hide/" + issue.attr("data-id"),
                 method: "POST",
@@ -166,6 +170,7 @@
                     } else {
                         issue.appendTo(issuesContainer);
                     }
+                    hideSavingIndicator();
                 }
             });
         });

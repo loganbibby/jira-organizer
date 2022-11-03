@@ -10,6 +10,9 @@
     {% block head %}{% endblock %}
   </head>
   <body class="bg-light">
+    <div id="saving-indicator" class="position-absolute top-0 start-50 text-success" style="display: none">
+        Saving... <i class="fas fa-spinner fa-spin"></i>
+    </div>
     <div class="container">
       <div class="row py-5 align-items-center">
         <div class="col-6">
@@ -56,6 +59,15 @@
     </footer>
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+    <script>
+        let savingIndicator = $("#saving-indicator");
+        function showSavingIndicator(){
+            savingIndicator.show();
+        }
+        function hideSavingIndicator(){
+            savingIndicator.hide();
+        }
+    </script>
     {% block body_end %}{% endblock %}
   </body>
 </html>
