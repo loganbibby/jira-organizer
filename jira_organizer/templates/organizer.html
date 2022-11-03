@@ -11,7 +11,9 @@
       {{ issue.summary }}
     </div><!-- .card-body -->
     <div class="card-footer small text-muted">
-      <ul class="list-unstyled list-inline mb-0">
+        <div class="row mb-0">
+            <div class="col-10">
+                <ul class="list-unstyled list-inline mb-0">
         <li class="list-inline-item me-{{ list_me }}">
           <a href="https://{{ jira_subdomain }}.atlassian.net/browse/{{ issue.id }}" target="_blank">
             {{ issue.id }}
@@ -44,6 +46,24 @@
           {% endif %}
         {% endif %}
       </ul>
+            </div>
+            <div class="col-2 text-end">
+                {% if not sm %}
+                <ul class="list-unstyled list-inline mb-0">
+                    <li class="list-inline-item">
+                        <a href="#" class="move-to-bottom">
+                            <i class="fas fa-angle-double-down"></i>
+                        </a>
+                    </li>
+                    <li class="list-inline-item">
+                        <a href="#" class="move-to-top">
+                            <i class="fas fa-angle-double-up"></i>
+                        </a>
+                    </li>
+                </ul>
+                {% endif %}
+            </div>
+        </div>
     </div><!-- .card-footer -->
   </div><!-- .card -->
 {% endmacro %}
@@ -71,30 +91,46 @@
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script>
     $( function() {
-      $( "#issues-container" ).sortable({
-        cursor: "move",
-        containment: "parent",
-        update: function(){
-          let issues = [];
-          $(".issue-container").each(function(i){
-            issues.push($(this).attr("data-id"));
-          });
-          console.log(issues);
-          $.ajax({
-            url: "/api/update_order",
-            method: "POST",
-            data: JSON.stringify({
-              issues:issues
-            }),
-            headers: {
-              "Content-Type": "application/json; charset=utf-8",
-            },
-            success: function(data) {
-              console.log(data);
-            }
-          });
+        function updateOrder() {
+            let issues = [];
+            $(".issue-container").each(function(i){
+                issues.push($(this).attr("data-id"));
+            });
+
+            $.ajax({
+                url: "/api/update_order",
+                method: "POST",
+                data: JSON.stringify({
+                    issues:issues
+                }),
+                headers: {
+                    "Content-Type": "application/json; charset=utf-8",
+                },
+                success: function(data) {
+                    console.log(data);
+                }
+            });
         }
-      });
-    } );
+
+        let issuesContainer = $("#issues-container");
+
+        issuesContainer.sortable({
+            cursor: "move",
+            containment: "parent",
+            update: function(){
+                updateOrder();
+            }
+        });
+
+        $(".move-to-bottom").click(function(){
+            $(this).closest(".issue-container").appendTo(issuesContainer);
+            updateOrder();
+        });
+
+        $(".move-to-top").click(function(){
+            $(this).closest(".issue-container").prependTo(issuesContainer);
+            updateOrder();
+        });
+    });
     </script>
 {% endblock %}
