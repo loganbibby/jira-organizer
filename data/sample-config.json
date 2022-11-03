@@ -1,0 +1,5 @@
+{
+    "jira_subdomain": "your_jira_subdomain",
+    "jira_username": "your_username",
+    "jira_api_key": "your_api_key"
+}
