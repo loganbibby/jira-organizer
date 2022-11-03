@@ -61,10 +61,10 @@ Dictionary of display flags where the key is an option from below and the value 
 
  * Caching
  * Add note to issue
- * Move issue to top/bottom
- * Export issues (for pasting into Slack)
+ * ~~Move issue to top/bottom~~
+ * ~~Export issues (for pasting into Slack)~~
  * Expanded view modal
 
 ## Release History
-
+ * `0.2` - Added export view and ability to move issue to top/bottom
  * `0.1` - Initial release
