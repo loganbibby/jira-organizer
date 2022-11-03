@@ -60,7 +60,7 @@ def index():
 
     return render_template(
         "organizer.html",
-        issue_count=len(columns["main"]) + len(columns["other"]),
+        issue_count=len(columns["main"]) + len(columns["other"]) + len(columns["hidden"]),
         columns=columns,
         jira_subdomain=g.conf.jira_subdomain,
         statuses=get_statuses(),
