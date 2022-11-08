@@ -1,7 +1,7 @@
 {% extends '_framework.html' %}
 
-{% macro show_issue_meta(icon, class=None, sm=False) %}
-    <li class="list-inline-item small me-{% if sm %}3{% else %}4{% endif %}{% if class %} {{ class }}{% endif %}">
+{% macro show_issue_meta(icon, class=None, sm=False, tooltip=None) %}
+    <li class="list-inline-item small me-{% if sm %}3{% else %}4{% endif %}{% if class %} {{ class }}{% endif %}"{% if tooltip %} data-bs-toggle="tooltip" data-bs-title="{{ tooltip }}"{% endif %}>
         <i class="{{ icon }} pe-1"></i>
         {{ caller() }}
     </li>
@@ -21,38 +21,38 @@
         <div class="row mb-0">
             <div class="col-10">
                 <ul class="list-inline list-unstyled mb-0">
-                    {% call show_issue_meta(2, sm=sm) %}
+                    {% call show_issue_meta(2, sm=sm, tooltip="Jira Issue ID") %}
                       <a href="https://{{ jira_subdomain }}.atlassian.net/browse/{{ issue.id }}" target="_blank">
                         {{ issue.id }}
                       </a>
                     {% endcall %}
                     {% if 'show_assignee' in issue_display and not sm %}
-                        {% call show_issue_meta("fas fa-user-ninja", sm=sm) %}
+                        {% call show_issue_meta("fas fa-user-ninja", sm=sm, tooltip="Current Assignee") %}
                             {{ issue.assignee }}
                         {% endcall %}
                     {% endif %}
                     {% if 'show_status' in issue_display %}
-                        {% call show_issue_meta("far fa-bell", sm=sm) %}
+                        {% call show_issue_meta("far fa-bell", sm=sm, tooltip="Issue Status") %}
                             {{ issue.status }}
                         {% endcall %}
                     {% endif %}
                     {% if not sm %}
                       {% if 'show_project' in issue_display %}
-                          {% call show_issue_meta("fas fa-bookmark", sm=sm) %}
+                          {% call show_issue_meta("fas fa-bookmark", sm=sm, tooltip="Jira Project") %}
                             {{ issue.project }}
                           {% endcall %}
                       {% endif %}
                       {% if 'show_reporter' in issue_display %}
-                          {% call show_issue_meta("fas fa-user", sm=sm) %}
+                          {% call show_issue_meta("fas fa-user", sm=sm, tooltip="Reporter") %}
                               {{ issue.reporter }}
                           {% endcall %}
                       {% endif %}
-                      {% if 'show_priority' in conf.issue_display %}
-                          {% if issue.priority_slug in conf.priority_colors %}
-                            {% set class_name="text-" + conf.priority_colors[issue.priority_slug] %}
+                      {% if 'show_priority' in g.conf.issue_display %}
+                          {% if issue.priority_slug in g.conf.priority_colors %}
+                            {% set class_name="text-" + g.conf.priority_colors[issue.priority_slug] %}
                           {% else %}{% set class_name = None %}
                           {% endif %}
-                          {% call show_issue_meta("fas fa-exclamation-triangle", sm=sm, class=class_name) %}
+                          {% call show_issue_meta("fas fa-exclamation-triangle", sm=sm, class=class_name, tooltip="Priority") %}
                               {{ issue.priority }}
                           {% endcall %}
                       {% endif %}
@@ -62,18 +62,18 @@
             <div class="col-2 text-end">
                 <ul class="list-unstyled list-inline mb-0">
                     <li class="list-inline-item">
-                        <a href="#" class="hide">
+                        <a href="#" class="hide" data-bs-toggle="tooltip" data-bs-title="{% if hidden %}Show{% else %}Hide{% endif %} this issue">
                             <i class="{% if hidden %}far fa-eye{% else %}fas fa-eye-slash{% endif %}"></i>
                         </a>
                     </li>
                     {% if not sm %}
                     <li class="list-inline-item">
-                        <a href="#" class="move-to-bottom">
+                        <a href="#" class="move-to-bottom" data-bs-toggle="tooltip" data-bs-title="Move to bottom">
                             <i class="fas fa-angle-double-down"></i>
                         </a>
                     </li>
                     <li class="list-inline-item">
-                        <a href="#" class="move-to-top">
+                        <a href="#" class="move-to-top" data-bs-toggle="tooltip" data-bs-title="Move to top">
                             <i class="fas fa-angle-double-up"></i>
                         </a>
                     </li>

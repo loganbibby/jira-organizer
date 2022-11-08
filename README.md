@@ -64,6 +64,19 @@ Dictionary of display flags where the key is an option from below and the value 
  * `show_assignee`: Shows the assignee name (only on the main column)
  * `show_priority`: Shows the priority (only on the main column)
 
+### `views`
+
+Dictionary of views where the key is the name of the view (no spaces) and the value is a dictionary of the options below.
+
+ * `jql`: JQL for the view
+ * `title`: Title to be shown
+
+If no default view is specified, a view will be added for open issues of the current user.
+
+### `default_view`
+
+Name of the default view.
+
 ## To Do
 
  * Caching
@@ -74,6 +87,7 @@ Dictionary of display flags where the key is an option from below and the value 
 
 ## Release History
  
- * `0.3` - Added ability to hide issues; fixed issue with `Data` object; added priority display
- * `0.2` - Added export view and ability to move issue to top/bottom
- * `0.1` - Initial release
+* `0.4` - Added multiple views; various cosmetic changes
+* `0.3` - Added ability to hide issues; fixed issue with `Data` object; added priority display
+* `0.2` - Added export view and ability to move issue to top/bottom
+* `0.1` - Initial release

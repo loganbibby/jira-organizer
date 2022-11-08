@@ -3,13 +3,10 @@ from .app import app
 from .utils import *
 
 
-def get_issues():
-    jql = ""
+def get_issues(view_name):
+    view = g.conf.views[view_name]
 
-    if hasattr(g.conf, "issue_jql"):
-        jql = g.conf.issue_jql
-
-    issues = g.client.do_search(jql=jql)
+    issues = g.client.do_search(jql=view.get("jql", ""))
 
     columns = {
         "main": [],
@@ -17,11 +14,16 @@ def get_issues():
         "hidden": [],
     }
 
+    data = g.data.views.get(view_name, {
+        "hidden": [],
+        "sorted": []
+    })
+
     sorted_ids = []
 
     # Move issues into other columns
     for issue in issues:
-        if issue.jira_id in g.data.issues_hidden:
+        if issue.jira_id in data["hidden"]:
             columns["hidden"].append(issue)
             sorted_ids.append(issue.jira_id)
             continue
@@ -32,7 +34,7 @@ def get_issues():
             continue
 
     # Sort issues
-    for issue_id in g.data.issues_sorted:
+    for issue_id in data["sorted"]:
         if issue_id in sorted_ids:
             continue
 
@@ -51,27 +53,39 @@ def get_issues():
 
         columns["main"].append(issue)
 
+    g.data.views[view_name] = data
+
     return columns
 
 
 @app.route("/")
 def index():
-    columns = get_issues()
+    view_name = request.args.get("view", g.conf.default_view)
+
+    if view_name not in g.conf.views:
+        return f"View not found: {view_name}"
+
+    columns = get_issues(view_name)
 
     return render_template(
         "organizer.html",
         issue_count=len(columns["main"]) + len(columns["other"]) + len(columns["hidden"]),
         columns=columns,
-        conf=g.conf,
         jira_subdomain=g.conf.jira_subdomain,
         statuses=get_statuses(),
         issue_display=g.conf.issue_display,
+        view=g.conf.views[view_name]
     )
 
 
 @app.route("/export")
 def export_issues():
-    issues = get_issues()["main"]
+    view_name = request.args.get("view", g.conf.default_view)
+
+    if view_name not in g.conf.views:
+        return f"View not found: {view_name}"
+
+    issues = get_issues(view_name)["main"]
     limit = int(request.args.get("limit", 5))
 
     return render_template(

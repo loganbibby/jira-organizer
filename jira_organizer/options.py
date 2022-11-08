@@ -7,7 +7,8 @@ __all__ = [
 
 
 class Config(object):
-    issue_jql = "assignee = currentUser() AND status not in (Done, Deferred)"
+    views = {}
+    default_view = "default"
     status_colors = {}
     priority_colors = {
         "high": "danger",
@@ -24,6 +25,12 @@ class Config(object):
             for key, value in json.load(fh).items():
                 setattr(self, key, value)
 
+        if "default" not in self.views:
+            self.views["default"] = {
+                "title": "My Open Issues",
+                "jql": "assignee = currentUser() AND status not in (Done, Deferred)"
+            }
+
         self.jira_url = f"https://{self.jira_subdomain}.atlassian.net/rest/api"
 
 
@@ -31,8 +38,7 @@ class Data(object):
     def __init__(self, filename):
         self.filename = filename
 
-        self.issues_sorted = []
-        self.issues_hidden = []
+        self.views = {}
 
         self.load()
 
@@ -40,6 +46,13 @@ class Data(object):
         with open(self.filename, "r+", encoding="utf-8") as fh:
             for key, value in json.load(fh).items():
                 setattr(self, key, value)
+
+            for view_name in self.views.keys():
+                for key in ["hidden", "sorted"]:
+                    if key in self.views[view_name]:
+                        continue
+
+                    self.views[view_name][key] = []
 
     def dump(self):
         payload = self.__dict__.copy()
