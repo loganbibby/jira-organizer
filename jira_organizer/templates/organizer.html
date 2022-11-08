@@ -1,5 +1,12 @@
 {% extends '_framework.html' %}
 
+{% macro show_issue_meta(icon, class=None, sm=False) %}
+    <li class="list-inline-item small me-{% if sm %}3{% else %}4{% endif %}{% if class %} {{ class }}{% endif %}">
+        <i class="{{ icon }} pe-1"></i>
+        {{ caller() }}
+    </li>
+{% endmacro %}
+
 {% macro show_issue(issue, sm=False, hidden=False) %}
   {% if sm %}
     {% set list_me = 2 %}
@@ -13,46 +20,45 @@
     <div class="card-footer small text-muted">
         <div class="row mb-0">
             <div class="col-10">
-                <ul class="list-unstyled list-inline mb-0">
-        <li class="list-inline-item me-{{ list_me }}">
-          <a href="https://{{ jira_subdomain }}.atlassian.net/browse/{{ issue.id }}" target="_blank">
-            {{ issue.id }}
-          </a>
-        </li>
-        {% if 'show_assignee' in issue_display and not sm %}
-        <li class="list-inline-item me-{{ list_me }}">
-          <i class="fas fa-user-ninja pe-1"></i>
-          {{ issue.assignee }}
-        </li>
-        {% endif %}
-        {% if 'show_status' in issue_display %}
-        <li class="list-inline-item me-{{ list_me }}">
-          <i class="far fa-bell pe-1"></i>
-          {{ issue.status }}
-        </li>
-        {% endif %}
-        {% if not sm %}
-          {% if 'show_project' in issue_display %}
-          <li class="list-inline-item me-{{ list_me }}">
-            <i class="fas fa-bookmark pe-1"></i>
-            {{ issue.project }}
-          </li>
-          {% endif %}
-          {% if 'show_reporter' in issue_display %}
-          <li class="list-inline-item me-{{ list_me }}">
-            <i class="fas fa-user pe-1"></i>
-            {{ issue.reporter }}
-          </li>
-          {% endif %}
-          {% if 'show_priority' in conf.issue_display %}
-          <li class="list-inline-item me-{{ list_me }}"{% if issue.priority_slug in conf.priority_colors %} style="color: {{ conf.priority_colors[issue.priority_slug] }}"{% endif %}>
-            <i class="fas fa-exclamation-triangle pe-1"></i>
-            {{ issue.priority }}
-          </li>
-          {% endif %}
-        {% endif %}
-      </ul>
-            </div>
+                <ul class="list-inline list-unstyled mb-0">
+                    {% call show_issue_meta(2, sm=sm) %}
+                      <a href="https://{{ jira_subdomain }}.atlassian.net/browse/{{ issue.id }}" target="_blank">
+                        {{ issue.id }}
+                      </a>
+                    {% endcall %}
+                    {% if 'show_assignee' in issue_display and not sm %}
+                        {% call show_issue_meta("fas fa-user-ninja", sm=sm) %}
+                            {{ issue.assignee }}
+                        {% endcall %}
+                    {% endif %}
+                    {% if 'show_status' in issue_display %}
+                        {% call show_issue_meta("far fa-bell", sm=sm) %}
+                            {{ issue.status }}
+                        {% endcall %}
+                    {% endif %}
+                    {% if not sm %}
+                      {% if 'show_project' in issue_display %}
+                          {% call show_issue_meta("fas fa-bookmark", sm=sm) %}
+                            {{ issue.project }}
+                          {% endcall %}
+                      {% endif %}
+                      {% if 'show_reporter' in issue_display %}
+                          {% call show_issue_meta("fas fa-user", sm=sm) %}
+                              {{ issue.reporter }}
+                          {% endcall %}
+                      {% endif %}
+                      {% if 'show_priority' in conf.issue_display %}
+                          {% if issue.priority_slug in conf.priority_colors %}
+                            {% set class_name="text-" + conf.priority_colors[issue.priority_slug] %}
+                          {% else %}{% set class_name = None %}
+                          {% endif %}
+                          {% call show_issue_meta("fas fa-exclamation-triangle", sm=sm, class=class_name) %}
+                              {{ issue.priority }}
+                          {% endcall %}
+                      {% endif %}
+                    {% endif %}
+                  </ul><!-- ul -->
+            </div><!-- .col -->
             <div class="col-2 text-end">
                 <ul class="list-unstyled list-inline mb-0">
                     <li class="list-inline-item">

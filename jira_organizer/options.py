@@ -10,9 +10,11 @@ class Config(object):
     issue_jql = "assignee = currentUser() AND status not in (Done, Deferred)"
     status_colors = {}
     priority_colors = {
-        "high": "red",
-        "very_high": "red",
-        "medium": "orange"
+        "high": "danger",
+        "very_high": "danger",
+        "medium": "warning",
+        "low": "primary",
+        "lowest": "primary",
     }
     other_statuses = []
     issue_display = []
