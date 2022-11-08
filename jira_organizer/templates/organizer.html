@@ -130,7 +130,8 @@
                 url: "/api/update_order",
                 method: "POST",
                 data: JSON.stringify({
-                    issues:issues
+                    view_name: "{{ view_name }}",
+                    issues: issues
                 }),
                 headers: {
                     "Content-Type": "application/json; charset=utf-8",
@@ -175,6 +176,10 @@
             showSavingIndicator();
             $.ajax({
                 url: "/api/hide/" + issue.attr("data-id"),
+                data: JSON.stringify({view_name: "{{ view_name }}"}),
+                headers: {
+                    "Content-Type": "application/json; charset=utf-8",
+                },
                 method: "POST",
                 success: function(data) {
                     if ( data.hidden ) {

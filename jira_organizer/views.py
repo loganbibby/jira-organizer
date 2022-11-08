@@ -74,6 +74,7 @@ def index():
         jira_subdomain=g.conf.jira_subdomain,
         statuses=get_statuses(),
         issue_display=g.conf.issue_display,
+        view_name=view_name,
         view=g.conf.views[view_name]
     )
 
@@ -97,23 +98,26 @@ def export_issues():
 
 @app.route("/api/update_order", methods=["POST"])
 def update_order():
-    g.data.issues_sorted = request.get_json()["issues"]
+    data = request.get_json()
+
+    g.data.views[data["view_name"]]["sorted"] = data["issues"]
     g.data.dump()
 
     return jsonify({
-        "success": True,
-        "issues": g.data.issues_sorted
+        "success": True
     })
 
 
 @app.route("/api/hide/<issue_id>", methods=["POST"])
 def hide_issue(issue_id):
-    if issue_id in g.data.issues_hidden:
-        g.data.issues_hidden.remove(issue_id)
+    data = request.get_json()
+
+    if issue_id in g.data.views[data["view_name"]]["hidden"]:
+        g.data.views[data["view_name"]]["hidden"].remove(issue_id)
         g.data.dump()
         return jsonify({"hidden": False})
 
-    g.data.issues_hidden.append(issue_id)
+    g.data.views[data["view_name"]]["hidden"].append(issue_id)
     g.data.dump()
     return jsonify({"hidden": True})
 
