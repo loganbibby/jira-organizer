@@ -1,3 +1,6 @@
+from ..utils import slugify
+
+
 __all__ = [
     "JiraIssue", "JiraStatus",
 ]
@@ -51,7 +54,7 @@ class JiraIssue(JiraObject):
     field_mapping = {
         "jira_id": "id",
         "id": "key",
-        "priority": "priority.name",
+        "priority": "fields.priority.name",
         "summary": "fields.summary",
         "status": "fields.status.name",
         "reporter": "fields.reporter.displayName",
@@ -59,6 +62,10 @@ class JiraIssue(JiraObject):
         "project": "fields.project.name",
         "assignee": "fields.assignee.displayName",
     }
+
+    @property
+    def priority_slug(self):
+        return slugify(self.priority)
 
 
 class JiraStatus(JiraObject):

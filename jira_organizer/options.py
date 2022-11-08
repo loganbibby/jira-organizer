@@ -9,6 +9,11 @@ __all__ = [
 class Config(object):
     issue_jql = "assignee = currentUser() AND status not in (Done, Deferred)"
     status_colors = {}
+    priority_colors = {
+        "high": "red",
+        "very_high": "red",
+        "medium": "orange"
+    }
     other_statuses = []
     issue_display = []
 

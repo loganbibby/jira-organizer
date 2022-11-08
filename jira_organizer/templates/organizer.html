@@ -44,6 +44,12 @@
             {{ issue.reporter }}
           </li>
           {% endif %}
+          {% if 'show_priority' in conf.issue_display %}
+          <li class="list-inline-item me-{{ list_me }}"{% if issue.priority_slug in conf.priority_colors %} style="color: {{ conf.priority_colors[issue.priority_slug] }}"{% endif %}>
+            <i class="fas fa-exclamation-triangle pe-1"></i>
+            {{ issue.priority }}
+          </li>
+          {% endif %}
         {% endif %}
       </ul>
             </div>

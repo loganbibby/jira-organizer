@@ -44,6 +44,12 @@ Dictionary of colors for each status where the key is sluggified status name and
 
 (To view sluggified status names, go to `/api/statuses` and look at the `key`.)
 
+### `priority_colors`
+
+Dictionary of colors for each priority where the key is the sluggified priority name and the value is the color.
+
+Defaults to `red` for `high` and `very_high` and `orange` for `medium`.
+
 ### `other_statuses`
 
 List of sluggified status names to be shown in the Other column.
@@ -56,6 +62,7 @@ Dictionary of display flags where the key is an option from below and the value 
  * `show_reporter`: Shows the name of the report (only on the main column)
  * `show_project`: Shows the project name (only on the main column)
  * `show_assignee`: Shows the assignee name (only on the main column)
+ * `show_priority`: Shows the priority (only on the main column)
 
 ## To Do
 
@@ -67,6 +74,6 @@ Dictionary of display flags where the key is an option from below and the value 
 
 ## Release History
  
- * `0.3` - Added ability to hide issues; fixed issue with `Data` object
+ * `0.3` - Added ability to hide issues; fixed issue with `Data` object; added priority display
  * `0.2` - Added export view and ability to move issue to top/bottom
  * `0.1` - Initial release
