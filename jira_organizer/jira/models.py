@@ -47,6 +47,12 @@ class JiraObject(object):
 
             del data[key]
 
+        for key in data.keys():
+            if not isinstance(data[key], JiraObject):
+                continue
+
+            data[key] = data[key].to_dict()
+
         return data
 
 

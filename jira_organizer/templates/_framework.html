@@ -21,6 +21,32 @@
         <div class="col-6 text-end">
           {% set btn_classes = "btn btn-sm btn-primary" %}
           <ul class="list-unstyled list-inline mb-0">
+            {% if config.ISSUE_VIEWS|length > 1 %}
+            <li class="list-inline-item">
+                <div class="dropdown">
+                    <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        {% if view_name %}{{ config.ISSUE_VIEWS[view_name].title }}
+                        {% else %}Change View{% endif %}
+                    </button>
+                    <ul class="dropdown-menu">
+                        {% for view_key, view in config.ISSUE_VIEWS.items() %}
+                        <li>
+                            <a href="{{ request.path }}?view={{ view_key }}" class="dropdown-item{% if view_name == view_key %} active{% endif %}">
+                                {{ view.title|default(view_key, True) }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </li>
+            {% endif %}
+            {% if request.path == '/' %}
+            <li class="list-inline-item">
+              <a href="#" class="{{ btn_classes }} refresh-all">
+                  Refresh Issues
+              </a>
+            </li>
+            {% endif %}
             {% if request.path != '/' %}
             <li class="list-inline-item">
               <a href="/" class="{{ btn_classes }}">
@@ -45,34 +71,6 @@
       </div>
     </div><!-- .container -->
     <div class="container">
-        {% if view %}
-        <div class="row mb-4 pb-4 align-items-center">
-            <div class="col-6">
-                <h4>{{ view.title }}</h4>
-                <div class="small text-muted">
-                    There are {{ issue_count }} total issues for this view.
-                </div>
-            </div>
-            <div class="col-6 text-end">
-                {% if g.conf.views|length > 1 %}
-                <div class="dropdown">
-                    <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Change View
-                    </button>
-                    <ul class="dropdown-menu">
-                        {% for view_key, view in g.conf.views.items() %}
-                        <li>
-                            <a href="{{ request.path }}?view={{ view_key }}" class="dropdown-item{% if request.args.get('view', g.conf.default_view) == view_key %} active{% endif %}">
-                                {{ view.title|default(view_key, True) }}
-                            </a>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
       <div class="row">
         {% block content %}{% endblock %}
       </div><!-- .row -->

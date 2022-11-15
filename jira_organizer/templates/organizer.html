@@ -1,123 +1,47 @@
 {% extends '_framework.html' %}
 
-{% macro show_issue_meta(icon, class=None, sm=False, tooltip=None) %}
-    <li class="list-inline-item small me-{% if sm %}3{% else %}4{% endif %}{% if class %} {{ class }}{% endif %}"{% if tooltip %} data-bs-toggle="tooltip" data-bs-title="{{ tooltip }}"{% endif %}>
-        <i class="{{ icon }} pe-1"></i>
-        {{ caller() }}
-    </li>
-{% endmacro %}
-
-{% macro show_issue(issue, sm=False, hidden=False) %}
-  {% if sm %}
-    {% set list_me = 2 %}
-  {% else %}
-    {% set list_me = 4 %}
-  {% endif %}
-  <div class="issue-container card shadow mb-3" data-id="{{ issue.jira_id }}" style="border-top: 4px solid {{ statuses[issue.status].color|default('gray') }}">
-    <div class="card-body">
-      {{ issue.summary }}
-    </div><!-- .card-body -->
-    <div class="card-footer small text-muted">
-        <div class="row mb-0">
-            <div class="col-10">
-                <ul class="list-inline list-unstyled mb-0">
-                    {% call show_issue_meta(2, sm=sm, tooltip="Jira Issue ID") %}
-                      <a href="https://{{ jira_subdomain }}.atlassian.net/browse/{{ issue.id }}" target="_blank">
-                        {{ issue.id }}
-                      </a>
-                    {% endcall %}
-                    {% if 'show_assignee' in issue_display and not sm %}
-                        {% call show_issue_meta("fas fa-user-ninja", sm=sm, tooltip="Current Assignee") %}
-                            {{ issue.assignee }}
-                        {% endcall %}
-                    {% endif %}
-                    {% if 'show_status' in issue_display %}
-                        {% call show_issue_meta("far fa-bell", sm=sm, tooltip="Issue Status") %}
-                            {{ issue.status }}
-                        {% endcall %}
-                    {% endif %}
-                    {% if not sm %}
-                      {% if 'show_project' in issue_display %}
-                          {% call show_issue_meta("fas fa-bookmark", sm=sm, tooltip="Jira Project") %}
-                            {{ issue.project }}
-                          {% endcall %}
-                      {% endif %}
-                      {% if 'show_reporter' in issue_display %}
-                          {% call show_issue_meta("fas fa-user", sm=sm, tooltip="Reporter") %}
-                              {{ issue.reporter }}
-                          {% endcall %}
-                      {% endif %}
-                      {% if 'show_priority' in g.conf.issue_display %}
-                          {% if issue.priority_slug in g.conf.priority_colors %}
-                            {% set class_name="text-" + g.conf.priority_colors[issue.priority_slug] %}
-                          {% else %}{% set class_name = None %}
-                          {% endif %}
-                          {% call show_issue_meta("fas fa-exclamation-triangle", sm=sm, class=class_name, tooltip="Priority") %}
-                              {{ issue.priority }}
-                          {% endcall %}
-                      {% endif %}
-                    {% endif %}
-                  </ul><!-- ul -->
-            </div><!-- .col -->
-            <div class="col-2 text-end">
-                <ul class="list-unstyled list-inline mb-0">
-                    <li class="list-inline-item">
-                        <a href="#" class="hide" data-bs-toggle="tooltip" data-bs-title="{% if hidden %}Show{% else %}Hide{% endif %} this issue">
-                            <i class="{% if hidden %}far fa-eye{% else %}fas fa-eye-slash{% endif %}"></i>
-                        </a>
-                    </li>
-                    {% if not sm %}
-                    <li class="list-inline-item">
-                        <a href="#" class="move-to-bottom" data-bs-toggle="tooltip" data-bs-title="Move to bottom">
-                            <i class="fas fa-angle-double-down"></i>
-                        </a>
-                    </li>
-                    <li class="list-inline-item">
-                        <a href="#" class="move-to-top" data-bs-toggle="tooltip" data-bs-title="Move to top">
-                            <i class="fas fa-angle-double-up"></i>
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </div><!-- .card-footer -->
-  </div><!-- .card -->
-{% endmacro %}
-
 {% block content %}
     <div class="col-12 col-lg-8">
-      <div id="issues-container">
-        {% for issue in columns['main'] %}{{ show_issue(issue) }}{% endfor %}
-      </div><!-- #issues-container -->
+        <div class="mb-3 text-muted small" style="display: none">
+            Displaying <span id="issues-main-count"></span> issues out of <span id="issues-count"></span> total issues for this view.
+        </div>
+        <div id="issues-container-main" class="issues-container" data-column="main">
+            <div class="loading-icon my-4 text-center">
+                <i class="fas fa-sync fa-spin fa-3x"></i>
+            </div>
+        </div><!-- #issues-container-main -->
     </div><!-- .col -->
     <div class="col-12 col-lg-4 small">
-        {% if columns['hidden']|count %}
-        <div class="mb-3 text-muted hidden-issues-count text-center">
-            {% set count = columns['hidden']|count %}
-            You have {{ count }} hidden issue{% if count > 1 %}s{% endif %}.
-            <a href="#" id="show-hidden" data-prev="Hide?">Show?</a>
+        <div class="mb-3 text-muted text-center" style="display: none">
+            You have <span id="issues-hidden-count"></span> hidden issues.
+            <a href="#" id="show-hidden-link">
+                <span id="show-hidden-show">Show</span>
+                <span id="show-hidden-hide" style="display: none">Hide</span>
+            </a>
         </div>
-        <div id="hidden-issues-container" style="display: none">
-            {% for issue in columns['hidden'] %}{{ show_issue(issue, sm=True, hidden=True) }}{% endfor %}
+        <div id="issues-container-hidden" class="issues-container" data-column="hidden" style="display:none">
+          <div class="loading-icon my-4 text-center">
+              <i class="fas fa-sync fa-spin fa-2x"></i>
+          </div>
+        </div><!-- issues-container-hidden -->
+        <div class="mb-3 text-muted text-center" style="display: none">
+            You have <span id="issues-other-count"></span> other issues.
         </div>
-        {% endif %}
-        {% if columns['other']|count %}
-        <div class="mb-3 text-muted other-issues-count text-center">
-            {% set count = columns['other']|count %}
-            You have {{ count }} other issue{% if count > 1 %}s{% endif %}.
-        </div>
-        <div id="other-issues-container">
-            {% for issue in columns['other'] %}{{ show_issue(issue, sm=True) }}{% endfor %}
-        </div>
-        {% endif %}
+        <div id="issues-container-other" class="issues-container" data-column="other">
+          <div class="loading-icon my-4 text-center">
+              <i class="fas fa-sync fa-spin fa-2x"></i>
+          </div>
+        </div><!-- issues-container-other -->
     </div><!-- .col -->
 {% endblock %}
 
 {% block body_end %}
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
     <script>
-    $( function() {
+        let viewName = "{{ view_name }}";
+        let issuesContainer = $("#issues-container-main");
+        let hiddenContainer = $("#issues-container-hidden");
+
         function updateOrder() {
             let issues = [];
             $(".issue-container").each(function(i){
@@ -130,7 +54,7 @@
                 url: "/api/update_order",
                 method: "POST",
                 data: JSON.stringify({
-                    view_name: "{{ view_name }}",
+                    view_name: viewName,
                     issues: issues
                 }),
                 headers: {
@@ -143,8 +67,42 @@
             });
         }
 
-        let issuesContainer = $("#issues-container");
-        let hiddenContainer = $("#hidden-issues-container");
+        function loadIssues(elem, column) {
+            let loadingIcon = elem.find(".loading-icon");
+
+            loadingIcon.show();
+            elem.find(".issue-container").remove();
+
+            $.ajax({
+               url: "/api/issues",
+               data: {
+                   view: viewName,
+                   column: column,
+                   format: "html"
+               },
+               success: function(data){
+                   loadingIcon.hide();
+                   elem.append(data.results.join(""));
+                   updateCounter(data.column);
+               }
+           });
+        }
+
+        function updateCounter(col) {
+            let container = $("#issues-container-" + col);
+            let countText = $("#issues-" + col + "-count");
+
+            if ( container === null ) { return; }
+
+            let count = container.find(".issue-container").length;
+
+            if ( count ) {
+                countText.text(count);
+                countText.parent().show();
+            } else {
+                countText.parent().hide();
+            }
+        }
 
         issuesContainer.sortable({
             cursor: "move",
@@ -154,43 +112,70 @@
             }
         });
 
-        $(".move-to-bottom").click(function(){
-            $(this).closest(".issue-container").appendTo(issuesContainer);
-            updateOrder();
+        $("#show-hidden-link").click(function(){
+            hiddenContainer.toggle();
+            $("#show-hidden-hide").toggle();
+            $("#show-hidden-show").toggle();
         });
 
-        $(".move-to-top").click(function(){
-            $(this).closest(".issue-container").prependTo(issuesContainer);
-            updateOrder();
-        });
-
-        $("#show-hidden").click(function(){
-            $("#hidden-issues-container").toggle();
-            let prevText = $(this).attr("data-prev");
-            $(this).attr("data-prev", $(this).text());
-            $(this).text(prevText);
-        });
-
-        $(".hide").click(function(){
-            let issue = $(this).closest(".issue-container");
-            showSavingIndicator();
-            $.ajax({
-                url: "/api/hide/" + issue.attr("data-id"),
-                data: JSON.stringify({view_name: "{{ view_name }}"}),
-                headers: {
-                    "Content-Type": "application/json; charset=utf-8",
-                },
-                method: "POST",
-                success: function(data) {
-                    if ( data.hidden ) {
-                        issue.appendTo(hiddenContainer);
-                    } else {
-                        issue.appendTo(issuesContainer);
+        $("body")
+            .on("click", ".hide", function(){
+                let issue = $(this).closest(".issue-container");
+                showSavingIndicator();
+                $.ajax({
+                    url: "/api/hide/" + issue.attr("data-id"),
+                    data: JSON.stringify({view_name: "{{ view_name }}"}),
+                    headers: {
+                        "Content-Type": "application/json; charset=utf-8",
+                    },
+                    method: "POST",
+                    success: function(data) {
+                        if ( data.hidden ) {
+                            issue.appendTo(hiddenContainer);
+                        } else {
+                            issue.appendTo(issuesContainer);
+                        }
+                        hideSavingIndicator();
+                        updateCounter("hidden");
                     }
-                    hideSavingIndicator();
+                });
+            })
+            .on("click", ".move-to-bottom", function(){
+                $(this).closest(".issue-container").appendTo(issuesContainer);
+                updateOrder();
+            })
+            .on("click", ".move-to-top", function(){
+                $(this).closest(".issue-container").prependTo(issuesContainer);
+                updateOrder();
+            });
+
+        $(".refresh-all").click(function(){
+            $.ajax({
+                url: "/api/issues/invalidate",
+                data: {
+                    view: viewName
+                },
+                success: function(){
+                    $(".issues-container").each(function(){
+                        let issueContainer = $(this);
+                        loadIssues(
+                            issueContainer,
+                            $(this).attr("data-column"),
+                            true
+                        );
+                    });
                 }
             });
         });
-    });
+
+        $(document).ready(function(){
+            $(".issues-container").each(function(){
+                let issueContainer = $(this);
+                loadIssues(
+                    issueContainer,
+                    $(this).attr("data-column")
+                );
+            });
+        });
     </script>
 {% endblock %}

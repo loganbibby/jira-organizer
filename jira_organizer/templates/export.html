@@ -2,20 +2,85 @@
 
 {% block content %}
     <div class="col-12 col-lg-8">
-      <ul>
-          {% for issue in issues %}
-          <li>
-              <a href="https://{{ jira_subdomain }}.atlassian.net/browse/{{ issue.id }}" target="_blank">{{ issue.id }}</a> - {{ issue.summary }}
-          </li>
-          {% endfor %}
-      </ul>
+      <div id="issues-container-main" class="issues-container" data-column="main">
+            <div class="loading-icon my-4 text-center">
+                <i class="fas fa-sync fa-spin fa-3x"></i>
+            </div>
+            <ul></ul>
+      </div>
     </div><!-- .col -->
     <div class="col-12 col-lg-4">
-        <form>
+        <form id="change-limit-form">
             <div class="input-group mb-3">
-                <input type="number" class="form-control" placeholder="Issues to export" name="limit">
+                <input id="limit" type="number" class="form-control" placeholder="Issues to export" name="limit">
                 <button class="btn btn-outline-secondary" type="submit">Update</button>
             </div>
         </form>
     </div>
+{% endblock %}
+
+{% block body_end %}
+    <script>
+        let viewName = "{{ view_name }}";
+        let issuesContainer = $("#issues-container-main");
+        let limitField = $("#limit");
+        let limitDefault = "{{ limit }}";
+        let limitForm = $("#change-limit-form");
+
+        function loadIssues(elem, column) {
+            let loadingIcon = elem.find(".loading-icon");
+
+            loadingIcon.show();
+            elem.find(".issue-container").remove();
+
+            let limit = limitDefault;
+
+            console.log(limitField.val());
+
+            if ( limitField.val() !== "" ) {
+                limit = limitField.val();
+            }
+
+            $.ajax({
+               url: "/api/issues",
+               data: {
+                   view: viewName,
+                   column: column,
+                   format: "json",
+                   limit: limit
+               },
+               success: function(data){
+                   loadingIcon.hide();
+                   let issueList = issuesContainer.find("ul");
+
+                   $.each(data.results, function(i, issue){
+                       issueList.append(
+                           '<li class="issue-container">' +
+                               '<a href="https://{{ config['JIRA_SUBDOMAIN'] }}.atlassian.net/browse/' + issue.id + '">' +
+                                  issue.id + '</a> - ' + issue.summary +
+                           '</li>'
+                       );
+                   });
+               }
+           });
+        }
+
+        $(document).ready(function(){
+            $(".issues-container").each(function(){
+                let issueContainer = $(this);
+                loadIssues(
+                    issueContainer,
+                    $(this).attr("data-column")
+                );
+            });
+
+            limitForm.submit(function(e){
+                e.preventDefault();
+                loadIssues(
+                    issuesContainer,
+                    "main"
+                );
+            });
+        });
+    </script>
 {% endblock %}

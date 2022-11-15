@@ -1,6 +1,7 @@
 # App-specific
-data/config.json
+data/cache/**
 data/data.json
+config.py
 
 .idea
 
