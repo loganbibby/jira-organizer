@@ -3,7 +3,7 @@
 {% block content %}
     <div class="col-12 col-lg-8">
         <div class="mb-3 text-muted small" style="display: none">
-            Displaying <span id="issues-main-count"></span> issues out of <span id="issues-count"></span> total issues for this view.
+            You have <span id="issues-main-count"></span> main issues. There are <span id="issues-count"></span> total issues for this view.
         </div>
         <div id="issues-container-main" class="issues-container" data-column="main">
             <div class="loading-icon my-4 text-center">
@@ -84,8 +84,15 @@
                    loadingIcon.hide();
                    elem.append(data.results.join(""));
                    updateCounter(data.column);
+                   initLocalBs();
                }
            });
+        }
+
+        function updateTotalCounter() {
+            $("#issues-count").text(
+                $(".issue-container").length
+            );
         }
 
         function updateCounter(col) {
@@ -102,6 +109,8 @@
             } else {
                 countText.parent().hide();
             }
+
+            updateTotalCounter();
         }
 
         issuesContainer.sortable({

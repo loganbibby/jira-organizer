@@ -11,8 +11,8 @@
   <div class="issue-container card shadow mb-3" data-id="{{ issue.jira_id }}" style="border-top: 4px solid {{ status_colors[issue.status]|default('gray') }}">
     <div class="card-body">
         {% if issue.is_new %}
-            <div class="float-end">
-                <i class="fas fa-certificate text-warning" data-bs-toggle="tooltip" data-bs-title="New issue"></i>
+            <div class="float-end new-issue" data-bs-toggle="tooltip" data-bs-title="New issue">
+                <i class="fas fa-certificate text-warning"></i>
             </div>
         {% endif %}
         {{ issue.summary }}
