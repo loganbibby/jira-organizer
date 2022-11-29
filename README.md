@@ -2,6 +2,8 @@
 
 Simple drag-and-drop organizer for Jira issues.
 
+![Screenshot](docs/screenshot.png)
+
 ## Installation
 
 Note: it's recommended to use a Python virtual environment. (`python -m venv .venv`)
@@ -94,7 +96,8 @@ Defaults to `default`.
  * Expanded view modal
 
 ## Release History
- 
+
+* `0.6` - Added auto refresh
 * `0.5` - Added caching; refactored main view to use APIs
 * `0.4` - Added multiple views; various cosmetic changes
 * `0.3` - Added ability to hide issues; fixed issue with `Data` object; added priority display

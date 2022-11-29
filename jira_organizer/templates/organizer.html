@@ -113,6 +113,25 @@
             updateTotalCounter();
         }
 
+        function refreshIssues(){
+            $.ajax({
+                url: "/api/issues/invalidate",
+                data: {
+                    view: viewName
+                },
+                success: function(){
+                    $(".issues-container").each(function(){
+                        let issueContainer = $(this);
+                        loadIssues(
+                            issueContainer,
+                            $(this).attr("data-column"),
+                            true
+                        );
+                    });
+                }
+            });
+        }
+
         issuesContainer.sortable({
             cursor: "move",
             containment: "parent",
@@ -159,22 +178,7 @@
             });
 
         $(".refresh-all").click(function(){
-            $.ajax({
-                url: "/api/issues/invalidate",
-                data: {
-                    view: viewName
-                },
-                success: function(){
-                    $(".issues-container").each(function(){
-                        let issueContainer = $(this);
-                        loadIssues(
-                            issueContainer,
-                            $(this).attr("data-column"),
-                            true
-                        );
-                    });
-                }
-            });
+            refreshIssues();
         });
 
         $(document).ready(function(){
@@ -185,6 +189,9 @@
                     $(this).attr("data-column")
                 );
             });
+
+            // auto-refresh
+            setInterval(refreshIssues, 60000);
         });
     </script>
 {% endblock %}

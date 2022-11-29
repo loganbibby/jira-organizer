@@ -28,7 +28,7 @@
                     {% endcall %}
                     {% if 'show_assignee' in display_flags and not sm %}
                         {% call show_issue_meta("fas fa-user-ninja", sm=sm, tooltip="Current Assignee") %}
-                            {{ issue.assignee }}
+                            {%  if issue.assignee %}{{ issue.assignee }}{% else %}Unassigned{% endif %}
                         {% endcall %}
                     {% endif %}
                     {% if 'show_status' in display_flags %}
