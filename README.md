@@ -18,6 +18,12 @@ Note: it's recommended to use a Python virtual environment. (`python -m venv .ve
 
 All configuration is stored in `jira_organizer.config`.
 
+### `AUTO_REFRESH`
+
+Number of seconds between auto refresh. Set to `0` to disable.
+
+Defaults to `60`.
+
 ### `JIRA_SUBDOMAIN`
 
 The subdomain of your organizations Jira site.

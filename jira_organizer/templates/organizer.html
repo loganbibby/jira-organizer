@@ -41,6 +41,9 @@
         let viewName = "{{ view_name }}";
         let issuesContainer = $("#issues-container-main");
         let hiddenContainer = $("#issues-container-hidden");
+        {% if not config['AUTO_REFRESH'] -%}let autoRefreshInterval = null;
+        {%- else -%}let autoRefreshInterval = {{ config['AUTO_REFRESH'] }} * 1000;{% endif %}
+        let autoRefreshCountdownId;
 
         function updateOrder() {
             let issues = [];
@@ -133,6 +136,8 @@
         }
 
         function refreshCountdown(){
+            if ( autoRefreshInterval === null ) return;
+
             let countdownContainer = $("#refresh-countdown");
             let countdownGroup = $("#refresh-btn-group");
 
@@ -141,11 +146,19 @@
                 countdownContainer
                     .attr("id", "refresh-countdown")
                     .removeClass("refresh-all")
-                    .attr("data-countdown", "60");
+                    .removeClass("btn-primary")
+                    .addClass("btn-secondary")
+                    .text("...");
                 countdownGroup.append(countdownContainer);
             }
 
-            setInterval(function(){
+            countdownContainer.attr("data-countdown", autoRefreshInterval / 1000);
+
+            if ( autoRefreshCountdownId ) {
+                clearInterval(autoRefreshCountdownId);
+            }
+
+            autoRefreshCountdownId = setInterval(function(){
                 let countdown = parseInt(countdownContainer.attr("data-countdown"));
 
                 if ( countdown > 0) {
@@ -156,7 +169,11 @@
 
                 countdownContainer.attr("data-countdown", countdown);
 
-                countdownContainer.text(countdown);
+                if ( countdown <= 0 ) {
+                    countdownContainer.text("...");
+                } else {
+                    countdownContainer.text(countdown);
+                }
             }, 1000);
         }
 
@@ -206,8 +223,8 @@
             });
 
         $(".refresh-all").click(function(){
-            refreshIssues();
             refreshCountdown();
+            refreshIssues();
         });
 
         $(document).ready(function(){
@@ -222,10 +239,12 @@
             refreshCountdown();
 
             // auto-refresh
-            setInterval(function(){
-                refreshIssues();
-                refreshCountdown();
-            }, 60000);
+            if ( autoRefreshInterval !== null ) {
+                setInterval(function(){
+                    refreshCountdown();
+                    refreshIssues();
+                }, autoRefreshInterval);
+            }
         });
     </script>
 {% endblock %}
