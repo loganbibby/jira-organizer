@@ -132,6 +132,34 @@
             });
         }
 
+        function refreshCountdown(){
+            let countdownContainer = $("#refresh-countdown");
+            let countdownGroup = $("#refresh-btn-group");
+
+            if ( countdownContainer.length === 0 ) {
+                countdownContainer = countdownGroup.find(".btn").clone();
+                countdownContainer
+                    .attr("id", "refresh-countdown")
+                    .removeClass("refresh-all")
+                    .attr("data-countdown", "60");
+                countdownGroup.append(countdownContainer);
+            }
+
+            setInterval(function(){
+                let countdown = parseInt(countdownContainer.attr("data-countdown"));
+
+                if ( countdown > 0) {
+                    countdown = countdown - 1;
+                } else {
+                    countdown = 0;
+                }
+
+                countdownContainer.attr("data-countdown", countdown);
+
+                countdownContainer.text(countdown);
+            }, 1000);
+        }
+
         issuesContainer.sortable({
             cursor: "move",
             containment: "parent",
@@ -179,6 +207,7 @@
 
         $(".refresh-all").click(function(){
             refreshIssues();
+            refreshCountdown();
         });
 
         $(document).ready(function(){
@@ -190,8 +219,13 @@
                 );
             });
 
+            refreshCountdown();
+
             // auto-refresh
-            setInterval(refreshIssues, 60000);
+            setInterval(function(){
+                refreshIssues();
+                refreshCountdown();
+            }, 60000);
         });
     </script>
 {% endblock %}

@@ -42,9 +42,11 @@
             {% endif %}
             {% if request.path == '/' %}
             <li class="list-inline-item">
-              <a href="#" class="{{ btn_classes }} refresh-all">
-                  Refresh Issues
-              </a>
+                <div id="refresh-btn-group" class="btn-group">
+                    <div class="{{ btn_classes }} refresh-all">
+                        Refresh Issues
+                    </div>
+                </div>
             </li>
             {% endif %}
             {% if request.path != '/' %}
