@@ -36,7 +36,7 @@ def _get_issues(view_name, force=False):
             sorted_ids.append(issue.jira_id)
             continue
 
-        if slugify(issue.status) in app.config["ISSUE_DEFAULT_OTHER_STATUSES"]:
+        if slugify(issue.status) in view["display"]["other_statuses"]:
             columns["other"].append(issue)
             sorted_ids.append(issue.jira_id)
             continue

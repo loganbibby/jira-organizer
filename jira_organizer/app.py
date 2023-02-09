@@ -1,6 +1,7 @@
 from flask import Flask, g
 from flask_caching import Cache
-from .options import Data
+
+from .options import Data, ComponentDisplay, DisplaySettings
 from .jira.client import JiraClient
 
 
@@ -27,9 +28,24 @@ if app.config["ISSUE_DEFAULT_VIEW"] not in app.config["ISSUE_VIEWS"]:
 for view_name in list(app.config["ISSUE_VIEWS"].keys()):
     view = app.config["ISSUE_VIEWS"][view_name]
 
-    for key in ["display_flags", "other_statuses", "status_colors", "priority_colors"]:
-        if key not in view:
-            view[key] = app.config[f"ISSUE_DEFAULT_{key.upper()}"]
+    display_settings = view.get("display", {})
+    display_defaults = app.config["ISSUE_DEFAULT_DISPLAY_SETTINGS"]
+
+    for key in ["flags", "other_statuses"]:
+        if key not in display_settings:
+            display_settings[key] = display_defaults.get(key, [])
+
+    for key in ["statuses", "priorities", "issue_types"]:
+        default = display_defaults.get(key, {})
+
+        if key not in display_settings:
+            display_settings[key] = default
+        else:
+            for child, value in default.items():
+                if child not in display_settings[key]:
+                    display_settings[key][child] = value
+
+    view["display"] = display_settings
 
     app.config["ISSUE_VIEWS"][view_name] = view
 

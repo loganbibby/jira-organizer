@@ -56,6 +56,17 @@ class JiraObject(object):
         return data
 
 
+class NestedJiraIssue(JiraObject):
+    field_mapping = {
+        "jira_id": "id",
+        "id": "key",
+        "priority": "fields.priority.name",
+        "summary": "fields.summary",
+        "status": "fields.status.name",
+        "issue_type": "fields.issuetype.name",
+    }
+
+
 class JiraIssue(JiraObject):
     field_mapping = {
         "jira_id": "id",
@@ -67,11 +78,30 @@ class JiraIssue(JiraObject):
         "issue_type": "fields.issuetype.name",
         "project": "fields.project.name",
         "assignee": "fields.assignee.displayName",
+        "fix_versions": "fields.fixVersions",
+        "labels": "fields.labels",
+        "parent": "fields.parent",
     }
+
+    @property
+    def status_slug(self):
+        return slugify(self.status)
 
     @property
     def priority_slug(self):
         return slugify(self.priority)
+
+    @property
+    def issue_type_slug(self):
+        return slugify(self.issue_type)
+
+    def update(self, payload=None):
+        super().update(payload)
+
+        self.fix_versions = [d["name"] for d in self.fix_versions]
+
+        if hasattr(self, "parent"):
+            self.parent = NestedJiraIssue(self.parent)
 
 
 class JiraStatus(JiraObject):

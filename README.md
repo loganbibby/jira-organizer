@@ -42,37 +42,44 @@ A Personal Access Token (PAT) created from [here](https://id.atlassian.com/manag
 
 API endpoint for Jira. Automatically set if not defined. 
 
-### `ISSUE_DEFAULT_STATUS_COLORS`
+### `ISSUE_DEFAULT_DISPLAY_SETTINGS`
 
-Dictionary of colors for each status where the key is sluggified status name and the value is the color.
+These settings are the defaults for how the organizer displays issues. This same dictionary format is used for defining a view's `display` settings.
 
-You can override this in `ISSUE_VIEWS` with `status_colors`.
+#### `flags`
 
-### `ISSUE_DEFAULT_PRIORITY_COLORS`
-
-Dictionary of Bootstrap color classes for each priority where the key is the sluggified priority name and the class name.
-
-Defaults to `danger` for `high` and `very_high`, `warning` for `medium`, and `primary` for `low` and `lowest`.
-
-You can override this in `ISSUE_VIEWS` with `priority_colors`.
-
-### `ISSUE_DEFAULT_OTHER_STATUSES`
-
-List of sluggified status names to be shown in the Other column.
-
-You can override this in `ISSUE_VIEWS` with `other_statuses`.
-
-### `ISSUE_DEFAULT_DISPLAY_FLAGS`
-
-Dictionary of display flags where the key is an option from below and the value is a boolean.
+List of flags for displaying components in the issue:
 
  * `show_status`: Shows the issue's status
+ * `show_issue_type`: Shows the issue type
  * `show_reporter`: Shows the name of the report (only on the main column)
  * `show_project`: Shows the project name (only on the main column)
  * `show_assignee`: Shows the assignee name (only on the main column)
  * `show_priority`: Shows the priority (only on the main column)
+ * `show_labels`: Shows a comma separated list of labels (only on the main column)
+ * `show_parent`: Shows the parent Jira information (only on the main column)
 
-You can override this in `ISSUE_VIEWS` with `display_flags`.
+#### `other_statuses`
+
+List of sluggified status names to be shown in the Other column.
+
+#### `statuses`
+
+Dictionary of settings for each status where the key is sluggified status name and the value is a dictionary:
+
+ * `color`: Bootstrap color class
+
+#### `priorities`
+
+Dictionary of settings for each priority where the key is sluggified priority name and the value is a dictionary:
+
+ * `color`: Bootstrap color class
+
+#### `issue_types`
+
+Dictionary of settings for each issue type where the key is sluggified issue type and the value is a dictionary:
+
+ * `icon`: Font Awesome 5 Free icon class
 
 ### `ISSUE_VIEWS`
 
@@ -80,10 +87,7 @@ Dictionary of views where the key is the name of the view (no spaces) and the va
 
  * `jql`: JQL for the view
  * `title`: Title to be shown
- * `display_flags`: See `ISSUE_DEFAULT_DISPLAY_FLAGS`
- * `other_statuses`: See `ISSUE_DEFAULT_OTHER_STATUSES`
- * `priority_colors`: See `ISSUE_DEFAULT_PRIORITY_COLORS`
- * `status_colors`: See `ISSUE_DEFAULT_STATUS_COLORS`
+ * `display`: See `ISSUE_DEFAULT_DISPLAY_SETTINGS`
 
 If no default view is specified, a view will be added for open issues of the current user.
 
@@ -103,6 +107,7 @@ Defaults to `default`.
 
 ## Release History
 
+* `0.7` - Added new component displays; refactored display settings; minor UI tweaks
 * `0.6` - Added auto refresh
 * `0.5` - Added caching; refactored main view to use APIs
 * `0.4` - Added multiple views; various cosmetic changes

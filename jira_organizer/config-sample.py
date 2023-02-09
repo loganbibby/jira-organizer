@@ -21,25 +21,33 @@ JIRA_API_KEY = "your-api-key"
 #
 # Organizer
 
+AUTO_REFRESH = 60
+
 ISSUE_VIEWS = {}
 
-ISSUE_DEFAULT_DISPLAY_FLAGS = [
-    "show_status",
-    "show_reporter",
-    "show_priority"
-]
-
-ISSUE_DEFAULT_OTHER_STATUSES = []
-
-#
-# Display
-
-ISSUE_DEFAULT_STATUS_COLORS = {}
-
-ISSUE_DEFAULT_PRIORITY_COLORS = {
-    "high": "danger",
-    "very_high": "danger",
-    "medium": "warning",
-    "low": "primary",
-    "lowest": "primary",
+ISSUE_DEFAULT_DISPLAY_SETTINGS = {
+    "flags": [
+        "show_status",
+        "show_reporter",
+        "show_priority"
+    ],
+    "other_statuses": [],
+    "priorities": {
+        "high": {
+            "color": "danger",
+        },
+        "very_high": {
+            "color": "danger",
+        },
+        "medium": {
+            "color": "warning",
+        },
+        "low": {
+            "color": "primary",
+        },
+        "lowest": {
+            "color": "primary",
+        },
+    }
 }
+
