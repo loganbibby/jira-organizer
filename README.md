@@ -88,6 +88,7 @@ Dictionary of views where the key is the name of the view (no spaces) and the va
  * `jql`: JQL for the view
  * `title`: Title to be shown
  * `display`: See `ISSUE_DEFAULT_DISPLAY_SETTINGS`
+ * `allow_sorting`: Allows for sorting of issues (defaults to `True`)
 
 If no default view is specified, a view will be added for open issues of the current user.
 
@@ -107,6 +108,7 @@ Defaults to `default`.
 
 ## Release History
 
+* `0.8` - Refactor of display settings and display; UI tweaks
 * `0.7` - Added new component displays; refactored display settings; minor UI tweaks
 * `0.6` - Added auto refresh
 * `0.5` - Added caching; refactored main view to use APIs

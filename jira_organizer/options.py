@@ -35,61 +35,140 @@ class Data(object):
             json.dump(payload, fh)
 
 
-class ComponentDisplay(object):
-    def __init__(self, slug, display, show_in_main=True, color=None, icon=None):
-        self.display = display
-        self.slug = slug
-        self.show_in_main = show_in_main
-        self.options = {}
-        self.defaults = {
-            "color": color,
-            "icon": icon
+class DisplaySettings(object):
+    def __init__(self, view_settings, default_settings):
+        self.data = {
+            "flags": [],
+            "other_statuses": [],
+            "issue_id": {
+                "_": {
+                    "singular_name": "Issue ID",
+                    "plural_name": "Issue IDs",
+                    "show_in_small": True,
+                }
+            },
+            "assignee": {
+                "_": {
+                    "singular_name": "Current Assignee",
+                    "icon": "fas fa-user-ninja",
+                },
+            },
+            "project": {
+                "_": {
+                    "singular_name": "Project",
+                    "plural_name": "Projects",
+                    "icon": "fas fa-bookmark"
+                },
+            },
+            "version": {
+                "_": {
+                    "singular_name": "Version",
+                    "plural_name": "Versions",
+                    "icon": "fas fa-code-branch"
+                },
+            },
+            "parent": {
+                "_": {
+                    "singular_name": "Parent",
+                    "plural_name": "Parents",
+                    "icon": "fas fa-sitemap"
+                },
+            },
+            "labels": {
+                "_": {
+                    "singular_name": "Labels",
+                    "icon": "fas fa-tags"
+                },
+            },
+            "reporter": {
+                "_": {
+                    "singular_name": "Reporter",
+                    "plural_name": "Reporters",
+                    "icon": "fas fa-user",
+                }
+            },
+            "status": {
+                "_": {
+                    "singular_name": "Status",
+                    "plural_name": "Statuses",
+                    "show_in_small": True,
+                    "icon": "far fa-bell",
+                }
+            },
+            "priority": {
+                "_": {
+                    "singular_name": "Priority",
+                    "plural_name": "Priorities",
+                    "icon": "fas fa-exclamation-triangle"
+                }
+            },
+            "issue_type": {
+                "_": {
+                    "singular_name": "Issue Type",
+                    "plural_name": "Issue Types",
+                    "icon": "fas fa-dot-circle",
+                    "show_in_small": True,
+                },
+            },
         }
 
-    def __call__(self, slug):
-        if slug in self.options:
-            return self.options[slug]
+        def update_data(settings):
+            for key, value in settings.items():
+                if key not in self.data or not isinstance(value, dict):
+                    self.data[key] = value
+                    continue
 
-        return self.set(slug)
+                for child_key, child_value in value.items():
+                    if child_key not in self.data[key]:
+                        self.data[key][child_key] = child_value
+                        continue
 
-    def set(self, slug, override=True, **options):
-        for key, value in self.defaults.items():
-            if key not in options:
-                options[key] = value
+                    self.data[key][child_key].update(child_value)
 
-        if not override and slug in self.options:
-            return self.options[slug]
+        update_data(default_settings)
+        update_data(view_settings)
 
-        self.options[slug] = options
+    def has_flag(self, flag):
+        return flag in self.data["flags"]
 
-        return self.options[slug]
+    def show_in_other(self, slug):
+        return slug in self.data["other_statuses"]
 
-    def build_options(self, view, defaults):
-        for key, options in view.get(self.slug, {}).items():
-            self.set(key, **options)
+    def get_type_settings(self, type_name):
+        return self.data.get(type_name, {})
 
-        for key, options in defaults.get(self.slug, {}).items():
-            self.set(key, override=False, **options)
+    def get_type_default_settings(self, type_name):
+        return self.get_type_settings(type_name).get("_", {})
 
+    def get_type_default_setting(self, type_name, key, default=None):
+        return self.get_type_default_settings(type_name).get(key, default)
 
-class DisplaySettings(dict):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def get_name(self, type_name):
+        return self.get_type_default_setting(type_name, "singular_name")
 
-        defaults = (
-            ("flags", []),
-            ("other_statuses", []),
+    def get_plural_name(self, type_name):
+        return self.get_type_default_setting(
+            type_name, "plural_name",
+            self.get_name(type_name)
         )
 
-        for key, default in defaults:
-            if key not in self:
-                self[key] = default
+    def get_settings_for_slug(self, type_name, slug):
+        return self.get_type_settings(type_name).get(slug, {})
 
-    def add_component(self, component):
-        self[component.slug] = component
+    def get_color(self, type_name, slug):
+        return self.get_settings_for_slug(type_name, slug).get(
+            "color",
+            self.get_type_default_setting(type_name, "color")
+        )
 
-    def add_flag(self, flag):
-        self["flags"].append(flag)
+    def get_icon(self, type_name, slug):
+        return self.get_settings_for_slug(type_name, slug).get(
+            "icon",
+            self.get_type_default_setting(type_name, "icon")
+        )
 
-    def add_other_status(self, slug):
-        self["other_statuses"].append(slug)
+    def show_in_small(self, type_name):
+        return self.get_type_default_setting(type_name, "show_in_small", False)
+
+    def show_type(self, type_name):
+        return type_name == "issue_id" or self.has_flag(f"show_{type_name}")

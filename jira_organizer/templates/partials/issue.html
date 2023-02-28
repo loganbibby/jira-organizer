@@ -1,14 +1,17 @@
-{% macro show_issue_meta(icon=None, class=None, sm=False, tooltip=None) %}
-    <li class="list-inline-item small me-{% if sm %}3{% else %}4{% endif %}{% if class %} {{ class }}{% endif %}"{% if tooltip %} data-bs-toggle="tooltip" data-bs-title="{{ tooltip }}"{% endif %}>
+{% macro show_issue_meta(type) %}
+    {% set slug = issue.get_slug(type) %}
+    {% set color = display.get_color(type, slug) %}
+    {% set icon = display.get_icon(type, slug) %}
+    {% set tooltip = display.get_name(type) %}
+    {%- if display.show_type(type) and (not sm or display.show_in_small(type)) -%}
+    <li class="list-inline-item small me-{% if sm %}3{% else %}4{% endif %}{% if color %} text-{{ color }}{% endif %}"{% if tooltip %} data-bs-toggle="tooltip" data-bs-title="{{ tooltip }}"{% endif %}>
         {% if icon %}<i class="{{ icon }} pe-1"></i>{% endif %}
         {{ caller() }}
     </li>
+    {%- endif -%}
 {% endmacro %}
 
-{% if sm %}{% set list_me = 2 %}
-{% else %}{% set list_me = 4 %}{% endif %}
-
-  <div class="issue-container card shadow mb-3 border-top border-{{ display.statuses.get(issue.status_slug, {}).get("color", "secondary") }}" data-id="{{ issue.jira_id }}" style="border-top-width: 4px !important">
+  <div class="issue-container card shadow mb-3 border-top border-{{ display.get_color('status', issue.get_slug('status')) }}" data-id="{{ issue.jira_id }}" style="border-top-width: 4px !important">
     <div class="card-body">
         {% if issue.is_new %}
             <div class="float-end new-issue" data-bs-toggle="tooltip" data-bs-title="New issue">
@@ -21,64 +24,28 @@
         <div class="row mb-0">
             <div class="col-10">
                 <ul class="list-inline list-unstyled mb-0">
-                    {% call show_issue_meta(sm=sm, tooltip="Jira Issue ID") %}
+                    {% call show_issue_meta('issue_id') %}
                       <a href="https://{{ config['JIRA_SUBDOMAIN'] }}.atlassian.net/browse/{{ issue.id }}" target="_blank">
                         {{ issue.id }}
                       </a>
                     {% endcall %}
-                    {% if 'show_issue_type' in display.flags %}
-                      {% call show_issue_meta(display.issue_types.get(issue.issue_type_slug, {}).get("icon", "fas fa-dot-circle"), sm=sm, tooltip="Issue Type") %}
-                        {{ issue.issue_type }}
-                      {% endcall %}
-                  {% endif %}
-                    {% if 'show_assignee' in display.flags and not sm %}
-                        {% call show_issue_meta("fas fa-user-ninja", sm=sm, tooltip="Current Assignee") %}
-                            {%  if issue.assignee %}{{ issue.assignee }}{% else %}Unassigned{% endif %}
-                        {% endcall %}
-                    {% endif %}
-                    {% if 'show_status' in display.flags %}
-                        {% if issue.status_slug in display.statuses %}
-                            {% set class_name="text-" + display.statuses.get(issue.status_slug).get("color") %}
-                          {% else %}{% set class_name = None %}{% endif %}
-                        {% call show_issue_meta("far fa-bell", sm=sm, class=class_name, tooltip="Issue Status") %}
-                            {{ issue.status }}
-                        {% endcall %}
-                    {% endif %}
-                    {% if not sm %}
-                      {% if 'show_project' in display.flags %}
-                          {% call show_issue_meta("fas fa-bookmark", sm=sm, tooltip="Jira Project") %}
-                            {{ issue.project }}
-                          {% endcall %}
-                      {% endif %}
-                      {% if 'show_reporter' in display.flags %}
-                          {% call show_issue_meta("fas fa-user", sm=sm, tooltip="Reporter") %}
-                              {{ issue.reporter }}
-                          {% endcall %}
-                      {% endif %}
-                      {% if 'show_priority' in display.flags %}
-                          {% if issue.priority_slug in display.priorities %}
-                            {% set class_name="text-" + display.priorities.get(issue.priority_slug).get("color") %}
-                          {% else %}{% set class_name = None %}{% endif %}
-                          {% call show_issue_meta("fas fa-exclamation-triangle", sm=sm, class=class_name, tooltip="Priority") %}
-                              {{ issue.priority }}
-                          {% endcall %}
-                      {% endif %}
-                      {% if 'show_version' in display.flags and issue.fix_versions|length %}
-                          {% call show_issue_meta("fas fa-code-branch", sm=sm, tooltip="Version") %}
-                            {{ issue.fix_versions | join(', ') }}
-                          {% endcall %}
-                      {% endif %}
-                      {% if 'show_labels' in display.flags and issue.labels|length %}
-                          {% call show_issue_meta("fas fa-tags", sm=sm, tooltip="Labels") %}
-                            {{ issue.labels | join(', ') }}
-                          {% endcall %}
-                      {% endif %}
-                      {% if 'show_parent' in display.flags and issue.parent %}
-                          {% call show_issue_meta("fas fa-sitemap", sm=sm, tooltip="Parent") %}
-                            {{ issue.parent.summary }}
-                          {% endcall %}
-                      {% endif %}
-                    {% endif %}
+                    {% call show_issue_meta("issue_type") %}{{ issue.issue_type }}{% endcall %}
+                    {% call show_issue_meta('assignee') %}
+                        {%  if issue.assignee %}{{ issue.assignee }}{% else %}Unassigned{% endif %}
+                    {% endcall %}
+                    {% call show_issue_meta('status') %}{{ issue.status }}{% endcall %}
+                    {% call show_issue_meta('project') %}{{ issue.project }}{% endcall %}
+                    {% call show_issue_meta('reporter') %}{{ issue.reporter }}{% endcall %}
+                    {% call show_issue_meta('priority') %}{{ issue.priority }}{% endcall %}
+                    {% if issue.fix_versions|length %}{% call show_issue_meta('version') %}
+                        {{ issue.fix_versions | join(', ') }}
+                    {% endcall %}{% endif %}
+                    {% if issue.labels|length %}{% call show_issue_meta('labels') %}
+                        {{ issue.labels | join(', ') }}
+                    {% endcall %}{% endif %}
+                    {% if issue.parent %}{% call show_issue_meta('parent') %}
+                        {{ issue.parent.summary }}
+                    {% endcall %}{% endif %}
                   </ul><!-- ul -->
             </div><!-- .col -->
             <div class="col-2 text-end">
@@ -88,7 +55,7 @@
                             <i class="{% if hidden %}far fa-eye{% else %}fas fa-eye-slash{% endif %}"></i>
                         </a>
                     </li>
-                    {% if not sm %}
+                    {% if not sm and view["allow_sorting"]|default(True) %}
                     <li class="list-inline-item">
                         <a href="#" class="move-to-bottom" data-bs-toggle="tooltip" data-bs-title="Move to bottom">
                             <i class="fas fa-angle-double-down"></i>

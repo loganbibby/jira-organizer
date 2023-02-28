@@ -36,7 +36,7 @@ def _get_issues(view_name, force=False):
             sorted_ids.append(issue.jira_id)
             continue
 
-        if slugify(issue.status) in view["display"]["other_statuses"]:
+        if view["display"].show_in_other(slugify(issue.status)):
             columns["other"].append(issue)
             sorted_ids.append(issue.jira_id)
             continue
@@ -139,6 +139,7 @@ def get_issues():
         limit = view["limit"]
 
     data = _get_issues(view_name)
+    g.data.dump()
 
     if column not in data["issues"]:
         return jsonify({
@@ -159,6 +160,7 @@ def get_issues():
         results = [
             render_template(
                 "partials/issue.html",
+                view=view,
                 issue=issue,
                 sm=False if column == "main" else True,
                 hidden=False if column != "hidden" else True,

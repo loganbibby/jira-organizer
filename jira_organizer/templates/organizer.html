@@ -177,6 +177,7 @@
             }, 1000);
         }
 
+        {%  if view["allow_sorting"]|default(True) %}
         issuesContainer.sortable({
             cursor: "move",
             containment: "parent",
@@ -184,6 +185,7 @@
                 updateOrder();
             }
         });
+        {% endif %}
 
         $("#show-hidden-link").click(function(){
             hiddenContainer.toggle();

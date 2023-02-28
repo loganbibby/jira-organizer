@@ -95,6 +95,28 @@ class JiraIssue(JiraObject):
     def issue_type_slug(self):
         return slugify(self.issue_type)
 
+    def get_slug(self, type):
+        slug_property = f"{type}_slug"
+        if hasattr(self, slug_property):
+            return getattr(self, slug_property)
+
+    def should_display(self, key):
+        return hasattr(self, key) and getattr(self, key) is not None
+
+    def get_display(self, key):
+        if not hasattr(self, key):
+            return "<Not Available>"
+
+        value = getattr(self, key)
+
+        if isinstance(value, list):
+            return ", ".join(value)
+
+        if isinstance(value, dict) and "summary" in value:
+            return value["summary"]
+
+        return str(value)
+
     def update(self, payload=None):
         super().update(payload)
 
