@@ -10,21 +10,35 @@ class Data(object):
     def __init__(self, filename):
         self.filename = filename
 
-        self.views = {}
+        self.views = self.get_default_views()
 
         self.load()
 
+    def get_default_views(self):
+        from .app import app
+
+        views = {}
+
+        for view in app.config["ISSUE_VIEWS"].keys():
+            views[view] = {}
+
+        return views
+
     def load(self):
-        with open(self.filename, "r+", encoding="utf-8") as fh:
-            for key, value in json.load(fh).items():
-                setattr(self, key, value)
+        try:
+            with open(self.filename, "r+", encoding="utf-8") as fh:
+                for key, value in json.load(fh).items():
+                    setattr(self, key, value)
 
-            for view_name in self.views.keys():
-                for key in ["hidden", "sorted"]:
-                    if key in self.views[view_name]:
-                        continue
+                for view_name in self.views.keys():
+                    for key in ["hidden", "sorted"]:
+                        if key in self.views[view_name]:
+                            continue
 
-                    self.views[view_name][key] = []
+                        self.views[view_name][key] = []
+        except FileNotFoundError:
+            # Data file hasn't been created yet
+            self.dump()
 
     def dump(self):
         payload = self.__dict__.copy()
