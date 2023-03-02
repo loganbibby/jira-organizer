@@ -11,14 +11,15 @@ Simple drag-and-drop organizer for Jira issues.
 Note: it's recommended to use a Python virtual environment. (`python -m venv .venv`)
 
 1. Install required libraries with `pip install -r requirements.txt`.
-2. Copy `jira_organizer/config-sample.py` to `jira_organizer/config.py` and update.
+2. Copy `jira_organizer/config/sample.py` to `jira_organizer/config/config.py` and update.
 3. Run with `flask --app jira_organizer:app run`
 4. Access from <http://localhost:5000>.
 
 ### Docker
 
 1. Copy `docker/env-sample` to `docker/env` and update with your configuration.
-2. Bring up the stack with `make docker_run` or `docker-compose up -d`.
+2. Bring up the stack with `make docker_run` or `docker-compose up -d`. 
+3. Access from <http://localhost:5000>.
 
 If you want to use your own config file and not rely on environment variables, you can add a bind mount to the Compose file directly to your config file and set the `CONFIG_MODULE` environment variable. 
 
@@ -86,7 +87,7 @@ Settings for GitHub integration.
 
 These settings are the defaults for how the organizer displays issues. This same dictionary format is used for defining a view's `display` settings.
 
-See Display Settings.
+See [Display Settings](#display-settings).
 
 ### `ISSUE_VIEWS`
 
@@ -94,7 +95,7 @@ Dictionary of views where the key is the name of the view (no spaces) and the va
 
  * `jql`: JQL for the view
  * `title`: Title to be shown
- * `display`: See Display Settings
+ * `display`: See [Display Settings](#display-settings)
  * `allow_sorting`: Allows for sorting of issues (defaults to `True`)
 
 If no default view is specified, a view will be added for open issues of the current user.
