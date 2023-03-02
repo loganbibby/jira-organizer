@@ -1,3 +1,5 @@
+import re
+
 from ..utils import slugify
 
 
@@ -33,10 +35,29 @@ class JiraObject(object):
         do_dotted(self._raw_data)
 
         for obj_attr, data_field in self.field_mapping.items():
-            if data_field not in data:
+            value = None
+
+            if not data_field:
+                key_method = f"get_{obj_attr}_key"
+                data_method = f"get_{obj_attr}_data"
+
+                if hasattr(self, key_method):
+                    data_field = getattr(self, key_method)()
+                elif hasattr(self, data_method):
+                    value = getattr(self, data_method)(data)
+
+            if not value and data_field not in data:
                 continue
 
-            setattr(self, obj_attr, data[data_field])
+            if not value:
+                value = data[data_field]
+
+            update_method = f"update_{obj_attr}"
+
+            if hasattr(self, update_method):
+                value = getattr(self, update_method)(value)
+
+            setattr(self, obj_attr, value)
 
     def to_dict(self):
         data = self.__dict__.copy()
@@ -81,6 +102,7 @@ class JiraIssue(JiraObject):
         "fix_versions": "fields.fixVersions",
         "labels": "fields.labels",
         "parent": "fields.parent",
+        "github": None,
     }
 
     @property
@@ -117,13 +139,51 @@ class JiraIssue(JiraObject):
 
         return str(value)
 
-    def update(self, payload=None):
-        super().update(payload)
+    def update_fix_versions(self, value):
+        return [d["name"] for d in value]
 
-        self.fix_versions = [d["name"] for d in self.fix_versions]
+    def update_parent(self, value):
+        return NestedJiraIssue(value)
 
-        if hasattr(self, "parent"):
-            self.parent = NestedJiraIssue(self.parent)
+    def get_github_key(self):
+        from ..app import app
+        github_config = app.config.get("GITHUB")
+        if not github_config or "jira_custom_field" not in github_config:
+            return None
+        return f"fields.{github_config['jira_custom_field']}"
+
+    def update_github(self, value):
+        data = {
+            "pull_request": None,
+            "build": None
+        }
+
+        pr = re.search(r"pullrequest={([\w\d=, ]+)}", value)
+        build = re.search(r"build={([\w\d=, ]+)}", value)
+
+        def process_github_data(github_data):
+            items = {}
+
+            for item in github_data.split(", "):
+                item_child = item.split("=")
+                item_value = item_child[1]
+
+                try:
+                    item_value = int(item_value)
+                except ValueError:
+                    item_value = item_value
+
+                items[item_child[0]] = item_value
+
+            return items
+
+        if pr:
+            data["pull_request"] = process_github_data(pr.group(1))
+
+        if build:
+            data["build"] = process_github_data(build.group(1))
+
+        return data
 
 
 class JiraStatus(JiraObject):

@@ -28,7 +28,6 @@ class Data(object):
 
     def dump(self):
         payload = self.__dict__.copy()
-        print(payload)
         del payload["filename"]
 
         with open(self.filename, "w+", encoding="utf-8") as fh:
@@ -110,6 +109,22 @@ class DisplaySettings(object):
                     "show_in_small": True,
                 },
             },
+            "github_pr": {
+                "_": {
+                    "singular_name": "GitHub Pull Request Status",
+                    "plural_name": "GitHub Pull Request Statuses",
+                    "icon": "fab fa-github",
+                    "show_in_small": True
+                }
+            },
+            "github_build": {
+                "_": {
+                    "singular_name": "GitHub Build Status",
+                    "plural_name": "GitHub Build Statuses",
+                    "icon": "fab fa-github",
+                    "show_in_small": True
+                }
+            }
         }
 
         def update_data(settings):
@@ -172,3 +187,6 @@ class DisplaySettings(object):
 
     def show_type(self, type_name):
         return type_name == "issue_id" or self.has_flag(f"show_{type_name}")
+
+    def get_display(self, type_name, name):
+        return self.get_type_settings(type_name).get("_displays", {}).get(name, name)

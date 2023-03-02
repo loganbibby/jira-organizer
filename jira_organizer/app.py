@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, g
 from flask_caching import Cache
 
@@ -10,7 +12,7 @@ app = Flask(__name__)
 ##
 ### Config
 
-app.config.from_object("jira_organizer.config")
+app.config.from_object(os.environ.get("CONFIG_MODULE", default="jira_organizer.config.config"))
 
 app.config["JIRA_URL"] = app.config.get(
     "JIRA_URL",

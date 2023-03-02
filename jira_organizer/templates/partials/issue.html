@@ -6,7 +6,7 @@
     {%- if display.show_type(type) and (not sm or display.show_in_small(type)) -%}
     <li class="list-inline-item small me-{% if sm %}3{% else %}4{% endif %}{% if color %} text-{{ color }}{% endif %}"{% if tooltip %} data-bs-toggle="tooltip" data-bs-title="{{ tooltip }}"{% endif %}>
         {% if icon %}<i class="{{ icon }} pe-1"></i>{% endif %}
-        {{ caller() }}
+        {{ display.get_display(type, caller()|trim) }}
     </li>
     {%- endif -%}
 {% endmacro %}
@@ -45,6 +45,9 @@
                     {% endcall %}{% endif %}
                     {% if issue.parent %}{% call show_issue_meta('parent') %}
                         {{ issue.parent.summary }}
+                    {% endcall %}{% endif %}
+                    {% if issue.github.pull_request %}{% call show_issue_meta('github_pr') %}
+                        {{ issue.github.pull_request.state|title }}
                     {% endcall %}{% endif %}
                   </ul><!-- ul -->
             </div><!-- .col -->
