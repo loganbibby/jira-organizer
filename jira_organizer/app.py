@@ -12,7 +12,11 @@ app = Flask(__name__)
 ##
 ### Config
 
-app.config.from_object(os.environ.get("CONFIG_MODULE", default="jira_organizer.config.config"))
+app.config.from_object(
+    os.environ.get("CONFIG_MODULE", default="jira_organizer.config.config")
+)
+
+app.config["DEBUG"] = app.config.get("DEBUG", False)
 
 app.config["JIRA_URL"] = app.config.get(
     "JIRA_URL",

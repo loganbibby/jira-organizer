@@ -6,13 +6,37 @@ Simple drag-and-drop organizer for Jira issues.
 
 ## Installation
 
+### Locally 
+
 Note: it's recommended to use a Python virtual environment. (`python -m venv .venv`)
 
-1. Clone this repo.
-2. Install required libraries with `pip install -r requirements.txt`.
-3. Copy `jira_organizer/config-sample.py` to `jira_organizer/config.py` and update.
-4. Run with `flask --app jira_organizer:app run`
-5. Access from <http://localhost:5000>.
+1. Install required libraries with `pip install -r requirements.txt`.
+2. Copy `jira_organizer/config-sample.py` to `jira_organizer/config.py` and update.
+3. Run with `flask --app jira_organizer:app run`
+4. Access from <http://localhost:5000>.
+
+### Docker
+
+1. Copy `docker/env-sample` to `docker/env` and update with your configuration.
+2. Bring up the stack with `make docker_run` or `docker-compose up -d`.
+
+If you want to use your own config file and not rely on environment variables, you can add a bind mount to the Compose file directly to your config file and set the `CONFIG_MODULE` environment variable. 
+
+## Make commands
+
+To run `make` commands on Windows, install [Chocolatey](https://chocolatey.org/install#individual) and run `choco install make`.
+
+### Docker
+
+* `make docker_run`: Starts the Docker stack
+* `make docker_stop`: Stops the Docker stack
+* `make docker_build`: Builds the Docker stack
+* `make docker_rebuild`: Runs `docker_stop`, `docker_build`, and `docker_run` -- this is needed when the repo is updated
+
+### Local
+
+* `make run`: Starts the Flask server
+* `make debug`: Starts the Flask server in debug mode
 
 ## Configuration
 
@@ -130,10 +154,11 @@ There are two special keys:
  * ~~Export issues (for pasting into Slack)~~
  * Expanded view modal
  * ~~Expand display configuration~~
- * Dockerize
+ * ~~Dockerize~~
 
 ## Release History
 
+* `0.9` - Expanded display settings; moved config into its own module; made the sample config use environment variables; Dockerized; fixed bugs
 * `0.8` - Refactor of display settings and display; UI tweaks
 * `0.7` - Added new component displays; refactored display settings; minor UI tweaks
 * `0.6` - Added auto refresh

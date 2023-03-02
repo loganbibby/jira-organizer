@@ -1,0 +1,16 @@
+volumes:
+  data:
+
+services:
+  flask:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - data:/data
+    env_file:
+      - ./docker/env
+    environment:
+      - DATA_DIR=/data
