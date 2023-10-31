@@ -11,6 +11,4 @@ services:
     volumes:
       - data:/data
     env_file:
-      - ./docker/env
-    environment:
-      - DATA_DIR=/data
+      - .env

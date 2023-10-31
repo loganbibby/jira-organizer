@@ -1,8 +1,5 @@
 # App-specific
-data/cache/**
-data/data.json
-config.py
-docker/env
+jira_organizer/config/settings.py
 
 .idea
 

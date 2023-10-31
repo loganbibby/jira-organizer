@@ -6,19 +6,20 @@ Simple drag-and-drop organizer for Jira issues.
 
 ## Installation
 
-### Locally 
+### Local
 
 Note: it's recommended to use a Python virtual environment. (`python -m venv .venv`)
 
 1. Install required libraries with `pip install -r requirements.txt`.
-2. Copy `jira_organizer/config/sample.py` to `jira_organizer/config/config.py` and update.
+2. Copy `.env-sample-local` to `.env` and update with your configuration.
+2. Copy `jira_organizer/config/sample.py` to `jira_organizer/config/settings.py` and update, if needed.
 3. Run with `flask --app jira_organizer:app run`
 4. Access from <http://localhost:5000>.
 
-### Docker
+### Docker Compose
 
-1. Copy `docker/env-sample` to `docker/env` and update with your configuration.
-2. Bring up the stack with `make docker_run` or `docker-compose up -d`. 
+1. Copy `.env-sample-docker` to `.env` and update with your configuration.
+2. Bring up the stack with `make docker_run` or `docker-compose up -d`.
 3. Access from <http://localhost:5000>.
 
 If you want to use your own config file and not rely on environment variables, you can add a bind mount to the Compose file directly to your config file and set the `CONFIG_MODULE` environment variable. 
@@ -159,6 +160,7 @@ There are two special keys:
 
 ## Release History
 
+* `0.10` - Better Docker and local support; fixed bugs
 * `0.9` - Expanded display settings; moved config into its own module; made the sample config use environment variables; Dockerized; fixed bugs
 * `0.8` - Refactor of display settings and display; UI tweaks
 * `0.7` - Added new component displays; refactored display settings; minor UI tweaks

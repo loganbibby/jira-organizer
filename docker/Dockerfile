@@ -6,11 +6,8 @@ EXPOSE 5000
 
 VOLUME /data
 
-ENV CONFIG_MODULE="jira_organizer.config.docker"
-
 COPY ./jira_organizer /app/jira_organizer
 COPY ./requirements.txt /app/requirements.txt
-COPY ./docker/docker_config.py /app/jira_organizer/config/docker.py
 
 RUN pip install --upgrade pip \
     pip install -r /app/requirements.txt
